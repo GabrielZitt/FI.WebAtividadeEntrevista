@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewBag.Title = "Cadastrar Cliente";
+}
+@section scripts{
+    <script>
+        var urlPost = '@Url.Action("Incluir", "Cliente", new { area = "" })';
+    </script>
+    <script>
+        let beneficiarios = [];
+
+        function adicionarBeneficiario() {
+            const nome = document.getElementById('nome').value.trim();
+            const cpf = document.getElementById('cpf').value.trim();
+
+            if (!nome || !cpf) {
+                alert("Preencha todos os campos.");
+                return;
+            }
+
+            const cpfSemPontuacao = cpf.replace(/\D/g, '');
+
+            const cpfJaExiste = beneficiarios.some(b => b.cpf.replace(/\D/g, '') === cpfSemPontuacao);
+            if (cpfJaExiste) {
+                alert("Este CPF já foi adicionado como beneficiário.");
+                return;
+            }
+
+            beneficiarios.push({ nome, cpf });
+            atualizarGrid();
+        }
+
+        function atualizarGrid() {
+            const corpo = document.getElementById('listaBeneficiarios');
+            corpo.innerHTML = '';
+
+            beneficiarios.forEach((b, i) => {
+                corpo.innerHTML += `
+                 <tr>
+                    <td>${b.nome}</td>
+                    <td>${b.cpf}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editarBeneficiario(${i})">Editar</button>
+                         <button class="btn btn-primary btn-sm" onclick="excluirBeneficiario(${i})">Excluir</button>
+                    </td>
+                </tr>`;
+            });
+        }
+        function editarBeneficiario(index) {
+            const b = beneficiarios[index];
+            document.getElementById('nome').value = b.nome;
+            document.getElementById('cpf').value = b.cpf;
+            excluirBeneficiario(index);
+        }
+
+        function excluirBeneficiario(index) {
+            beneficiarios.splice(index, 1);
+            atualizarGrid();
+        }
+    </script>
+    @Scripts.Render("~/bundles/clientes")
+}
+<h2>@Html.Raw(ViewBag.Title)</h2>
+@Html.Partial("Forms")
